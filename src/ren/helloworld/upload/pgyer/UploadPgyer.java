@@ -122,7 +122,7 @@ public class UploadPgyer {
 				System.out.println("应用二维码地址：" + upload.getData().getAppQRCodeURL() + "\n");
 				System.out.println("正在下载二维码图片……" + "\n");
 				download(upload.getData().getAppQRCodeURL(), qrcodeDirPath, qrcodeFileName);
-				System.out.println("图片下载完成+\"\\n\"");
+				System.out.println("图片下载完成\n");
 			} else {
 				System.out.println("上传失败\n");
 				System.out.println("错误码：" + upload.getCode() + "\n");
