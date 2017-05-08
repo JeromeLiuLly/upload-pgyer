@@ -90,7 +90,7 @@ public class UploadPgyer {
 		System.out.println("password：         " + password + "\n");
 		
 		try {
-			System.out.println("正在上传文件：" + file + " 到 " + UPLOAD_URL);
+			System.out.println("正在上传文件：" + uploadFile.getName() + " 到 " + UPLOAD_URL);
 			InputStream is = new FileInputStream(uploadFile);
 			Document doc = Jsoup.connect(UPLOAD_URL)
 					.ignoreContentType(true)
@@ -104,7 +104,7 @@ public class UploadPgyer {
 			
 			is.close();
 			String result = doc.body().text();
-			System.out.println("文件上传完成\n");
+			System.out.println("文件上传完成");
 			Upload upload = new Gson().fromJson(result, new TypeToken<Upload>() {
 			}.getType());
 			
@@ -215,6 +215,7 @@ public class UploadPgyer {
 	 * @param upload
 	 */
 	private static void printResultInfo(Upload upload) {
+		System.out.println();
 		Upload.DataBean data = upload.getData();
 		System.out.println("应用类型：" + data.getAppType());
 		System.out.println("是否是最新版：" + data.getAppIsLastest());
