@@ -90,7 +90,7 @@ public class UploadPgyer {
 		System.out.println("password：         " + password + "\n");
 		
 		try {
-			System.out.println("正在上传文件：" + file + " 到 " + UPLOAD_URL + "\n");
+			System.out.println("正在上传文件：" + file + " 到 " + UPLOAD_URL);
 			InputStream is = new FileInputStream(uploadFile);
 			Document doc = Jsoup.connect(UPLOAD_URL)
 					.ignoreContentType(true)
@@ -105,16 +105,14 @@ public class UploadPgyer {
 			is.close();
 			String result = doc.body().text();
 			System.out.println("文件上传完成\n");
-			System.out.println("返回结果：" + result + "\n");
 			Upload upload = new Gson().fromJson(result, new TypeToken<Upload>() {
 			}.getType());
 			
 			if (upload.getCode() == 0) {
-				System.out.println("应用短链接：" + upload.getData().getAppShortcutUrl() + "\n");
-				System.out.println("应用二维码地址：" + upload.getData().getAppQRCodeURL() + "\n");
-				System.out.println("正在下载二维码图片……" + "\n");
+				System.out.println("正在下载二维码图片 " + upload.getData().getAppQRCodeURL());
 				download(upload.getData().getAppQRCodeURL(), qrcodeDirPath, qrcodeFileName);
-				System.out.println("图片下载完成\n");
+				System.out.println("图片下载完成");
+				printResultInfo(upload);
 			} else {
 				System.out.println("上传失败\n");
 				System.out.println("错误码：" + upload.getCode() + "\n");
@@ -201,13 +199,39 @@ public class UploadPgyer {
 		System.out.println("     password：     (选填) 设置App安装密码，如果不想设置密码，请传空字符串，或不传\n");
 	}
 	
+	/**
+	 * Header
+	 */
 	private static void printHeaderInfo() {
+		System.out.println();
 		System.out.println("****************************************************************");
 		System.out.println("****************************************************************");
-		System.out.println("****************************************************************");
-		System.out.println("\n\n**************        蒲公英上传服务        **************\n\n");
-		System.out.println("****************************************************************");
+		System.out.println("*****************        蒲公英上传服务        *****************");
 		System.out.println("****************************************************************");
 		System.out.println("****************************************************************");
+	}
+	
+	/**
+	 * @param upload
+	 */
+	private static void printResultInfo(Upload upload) {
+		Upload.DataBean data = upload.getData();
+		System.out.println("应用类型：" + data.getAppType());
+		System.out.println("是否是最新版：" + data.getAppIsLastest());
+		System.out.println("App 文件大小：" + data.getAppFileSize());
+		System.out.println("应用名称：" + data.getAppName());
+		System.out.println("版本号：" + data.getAppVersion());
+		System.out.println("Android的版本编号：" + data.getAppVersionNo());
+		System.out.println("build号：" + data.getAppBuildVersion());
+		System.out.println("应用程序包名：" + data.getAppIdentifier());
+		System.out.println("应用的Icon图标key：" + data.getAppIcon());
+		System.out.println("应用介绍：" + data.getAppDescription());
+		System.out.println("应用更新说明：" + data.getAppUpdateDescription());
+		System.out.println("应用截图的key：" + data.getAppScreenshots());
+		System.out.println("应用短链接：" + data.getAppShortcutUrl());
+		System.out.println("应用二维码地址：" + data.getAppQRCodeURL());
+		System.out.println("应用上传时间：" + data.getAppCreated());
+		System.out.println("应用更新时间：" + data.getAppUpdated());
+		System.out.println();
 	}
 }
