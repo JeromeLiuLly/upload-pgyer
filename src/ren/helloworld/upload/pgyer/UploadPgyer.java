@@ -24,32 +24,24 @@ public class UploadPgyer {
 	public static final String UPLOAD_URL = "https://qiniu-storage.pgyer.com/apiv1/app/upload";
 	
 	public static void main(String[] args) {
-		System.out.println("\n\n*********************蒲公英上传服务*******************************\n\n");
+		printHeaderInfo();
 		
 		// 用户帮助说明
 		if (args != null && args.length == 1 && args[0].equals("help")) {
-			System.out.println("参数说明请参考：https://www.pgyer.com/doc/api#uploadApp");
-			System.out.println("java -jar <uKey> <_api_key> <file> <qrcode> [installType] [password]");
-			System.out.println("    uKey：         (必填) 用户Key");
-			System.out.println("    _api_key：     (必填) API Key");
-			System.out.println("    file：         (必填) 需要上传的ipa或者apk文件");
-			System.out.println("    qrcode：       (必填) 上传到蒲公英后二维码图片存储的路径，绝对路径");
-			System.out.println("    installType：  (选填) 应用安装方式，值为(1,2,3)。1：公开，2：密码安装，3：邀请安装。默认为1公开");
-			System.out.println("    password：     (选填) 设置App安装密码，如果不想设置密码，请传空字符串，或不传\n");
+			printHelpInfo();
 			return;
 		}
 		
 		// 必须参数检测
 		if (args == null || args.length < 4) {
-			System.out.println("参数说明请参考：https://www.pgyer.com/doc/api#uploadApp");
-			System.out.println("java -jar <uKey> <_api_key> <file> <qrcode> [installType] [password]");
+			printHelpInfo();
 			return;
 		}
 		
 		// 提取相关参数
 		String uKey = args[0];
 		String _api_key = args[1];
-		String file = optFile(args[2]);
+		String file = findFile(args[2]);
 		String qrcode = args[3];
 		String installType = "1";
 		String password = "";
@@ -88,8 +80,8 @@ public class UploadPgyer {
 		}
 		
 		System.out.println("\n参数信息：");
-		System.out.println("uKey：             " + uKey);
-		System.out.println("_api_key：         " + _api_key);
+		/*System.out.println("uKey：             " + uKey);
+		System.out.println("_api_key：         " + _api_key);*/
 		System.out.println("file：             " + file);
 		System.out.println("qrcode:            " + qrcode);
 		System.out.println("qrcodeDirPath:     " + qrcodeDirPath);
@@ -139,7 +131,7 @@ public class UploadPgyer {
 	 * @param file
 	 * @return
 	 */
-	private static String optFile(String file) {
+	private static String findFile(String file) {
 		if (StringUtil.isBlank(file)) return null;
 		if (!file.contains("*")) return file;
 		
@@ -167,6 +159,10 @@ public class UploadPgyer {
 	 */
 	public static File download(String urlString, String savePath, String fileName) {
 		try {
+			File sf = new File(savePath);// 输出的文件流
+			if (!sf.exists()) sf.mkdirs();
+			String filePath = savePath + File.separator + fileName;
+			
 			URL url = new URL(urlString);// 构造URL
 			URLConnection con = url.openConnection();// 打开连接
 			con.setConnectTimeout(60 * 1000);//设置请求超时为5s
@@ -174,12 +170,7 @@ public class UploadPgyer {
 			
 			byte[] bs = new byte[1024 * 8];// 8K的数据缓冲
 			int len;// 读取到的数据长度
-			File sf = new File(savePath);// 输出的文件流
-			if (!sf.exists()) {
-				sf.mkdirs();
-			}
 			
-			String filePath = savePath + File.separator + fileName;
 			OutputStream os = new FileOutputStream(filePath);
 			while ((len = is.read(bs)) != -1) {// 开始读取
 				os.write(bs, 0, len);
@@ -194,5 +185,29 @@ public class UploadPgyer {
 			System.out.println("图片下载失败：" + e.getMessage() + "\n");
 			return null;
 		}
+	}
+	
+	/**
+	 * 输入帮助信息
+	 */
+	private static void printHelpInfo() {
+		System.out.println("参数说明请参考：https://www.pgyer.com/doc/api#uploadApp");
+		System.out.println("java -jar <uKey> <_api_key> <file> <qrcode> [installType] [password]");
+		System.out.println("     uKey：         (必填) 用户Key");
+		System.out.println("     _api_key：     (必填) API Key");
+		System.out.println("     file：         (必填) 需要上传的ipa或者apk文件");
+		System.out.println("     qrcode：       (必填) 上传到蒲公英后二维码图片存储的路径，绝对路径");
+		System.out.println("     installType：  (选填) 应用安装方式，值为(1,2,3)。1：公开，2：密码安装，3：邀请安装。默认为1公开");
+		System.out.println("     password：     (选填) 设置App安装密码，如果不想设置密码，请传空字符串，或不传\n");
+	}
+	
+	private static void printHeaderInfo() {
+		System.out.println("****************************************************************");
+		System.out.println("****************************************************************");
+		System.out.println("****************************************************************");
+		System.out.println("\n\n**************        蒲公英上传服务        **************\n\n");
+		System.out.println("****************************************************************");
+		System.out.println("****************************************************************");
+		System.out.println("****************************************************************");
 	}
 }
