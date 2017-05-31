@@ -200,7 +200,6 @@ public class UploadPgyer {
 	 * @param path     文件路径，重写入
 	 * @param content  文件内容
 	 * @param encoding 文件编码
-	 * @throws IOException
 	 */
 	private static void write(String path, String content, String encoding) {
 		try {
