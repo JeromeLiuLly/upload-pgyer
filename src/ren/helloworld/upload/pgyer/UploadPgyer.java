@@ -7,6 +7,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.helper.StringUtil;
 import org.jsoup.nodes.Document;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -14,6 +15,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -108,16 +110,23 @@ public class UploadPgyer {
 			Upload upload = new Gson().fromJson(result, new TypeToken<Upload>() {
 			}.getType());
 			
-			if (upload.getCode() == 0) {
-				System.out.println("正在下载二维码图片 " + upload.getData().getAppQRCodeURL());
-				download(upload.getData().getAppQRCodeURL(), qrcodeDirPath, qrcodeFileName);
-				System.out.println("图片下载完成");
-				printResultInfo(upload);
-			} else {
+			if (upload.getCode() != 0) {
 				System.out.println("上传失败\n");
 				System.out.println("错误码：" + upload.getCode() + "\n");
 				System.out.println("错误日志：" + upload.getMessage() + "\n");
+				return;
 			}
+			
+			System.out.println("正在下载二维码图片 " + upload.getData().getAppQRCodeURL());
+			download(upload.getData().getAppQRCodeURL(), qrcodeDirPath, qrcodeFileName);
+			System.out.println("图片下载完成");
+			System.out.println("正在将图片链接写入到文件中");
+			String qrtxt = file.substring(0, file.lastIndexOf(".")) + ".dat";
+			System.out.println("文件路径：" + qrtxt);
+			write(qrtxt, upload.getData().getAppQRCodeURL(), "utf-8");
+			
+			printResultInfo(upload);
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -182,6 +191,29 @@ public class UploadPgyer {
 			// e.printStackTrace();
 			System.out.println("图片下载失败：" + e.getMessage() + "\n");
 			return null;
+		}
+	}
+	
+	/**
+	 * 写文件
+	 *
+	 * @param path     文件路径，重写入
+	 * @param content  文件内容
+	 * @param encoding 文件编码
+	 * @throws IOException
+	 */
+	private static void write(String path, String content, String encoding) {
+		try {
+			File file = new File(path);
+			file.delete();
+			file.createNewFile();
+			BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
+					new FileOutputStream(file), encoding));
+			writer.write(content);
+			writer.close();
+			System.out.println("写入成功");
+		} catch (Exception e) {
+			System.err.println("文件写入失败");
 		}
 	}
 	
