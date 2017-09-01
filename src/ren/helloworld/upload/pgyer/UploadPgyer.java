@@ -24,22 +24,22 @@ import java.net.URLConnection;
  */
 public class UploadPgyer {
 	public static final String UPLOAD_URL = "https://qiniu-storage.pgyer.com/apiv1/app/upload";
-	
+
 	public static void main(String[] args) {
 		printHeaderInfo();
-		
+
 		// 用户帮助说明
 		if (args != null && args.length == 1 && args[0].equals("help")) {
 			printHelpInfo();
 			return;
 		}
-		
+
 		// 必须参数检测
 		if (args == null || args.length < 4) {
 			printHelpInfo();
 			return;
 		}
-		
+
 		// 提取相关参数
 		String uKey = args[0];
 		String _api_key = args[1];
@@ -47,7 +47,7 @@ public class UploadPgyer {
 		String qrcode = args[3];
 		String installType = "1";
 		String password = "";
-		
+
 		// 检验文件
 		if (file == null) {
 			System.out.println("文件不存在");
@@ -58,7 +58,7 @@ public class UploadPgyer {
 			System.out.println("文件不存在");
 			return;
 		}
-		
+
 		// 二维码存储路径校验
 		if (StringUtil.isBlank(qrcode)) {
 			return;
@@ -66,12 +66,12 @@ public class UploadPgyer {
 		File qrcodeFile = new File(qrcode);
 		String qrcodeDirPath = qrcodeFile.getParentFile().getAbsolutePath();
 		String qrcodeFileName = qrcodeFile.getName();
-		
+
 		// 获取安装方式
 		if (args.length >= 5) {
 			installType = args[4];
 		}
-		
+
 		// 如果密码安装，需要提取密码
 		if (installType.equals("2")) {
 			if (args.length == 6) {
@@ -80,7 +80,7 @@ public class UploadPgyer {
 				installType = "1";
 			}
 		}
-		
+
 		System.out.println("\n参数信息：");
 		/*System.out.println("uKey：             " + uKey);
 		System.out.println("_api_key：         " + _api_key);*/
@@ -90,7 +90,7 @@ public class UploadPgyer {
 		System.out.println("qrcodeFileName:    " + qrcodeFileName);
 		System.out.println("installType：      " + installType);
 		System.out.println("password：         " + password + "\n");
-		
+
 		try {
 			System.out.println("正在上传文件：" + uploadFile.getName() + " 到 " + UPLOAD_URL);
 			InputStream is = new FileInputStream(uploadFile);
@@ -103,35 +103,35 @@ public class UploadPgyer {
 					.data("password", password)
 					.timeout(1000 * 60 * 10)
 					.post();
-			
+
 			is.close();
 			String result = doc.body().text();
 			System.out.println("文件上传完成");
 			Upload upload = new Gson().fromJson(result, new TypeToken<Upload>() {
 			}.getType());
-			
+
 			if (upload.getCode() != 0) {
 				System.out.println("上传失败\n");
 				System.out.println("错误码：" + upload.getCode() + "\n");
 				System.out.println("错误日志：" + upload.getMessage() + "\n");
 				return;
 			}
-			
+
 			System.out.println("正在下载二维码图片 " + upload.getData().getAppQRCodeURL());
 			download(upload.getData().getAppQRCodeURL(), qrcodeDirPath, qrcodeFileName);
 			System.out.println("图片下载完成");
 			System.out.println("正在将图片链接写入到文件中");
-			String qrtxt = file.substring(0, file.lastIndexOf(".")) + ".dat";
+			String qrtxt = new File(qrcodeDirPath, qrcodeFileName.replace(".png", ".txt")).getAbsolutePath();
 			System.out.println("文件路径：" + qrtxt);
-			write(qrtxt, upload.getData().getAppQRCodeURL(), "utf-8");
-			
+			write(qrtxt, "appQRCodeURL=" + upload.getData().getAppQRCodeURL(), "utf-8");
+
 			printResultInfo(upload);
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * 根据文件名找出文件名
 	 *
@@ -141,7 +141,7 @@ public class UploadPgyer {
 	private static String findFile(String file) {
 		if (StringUtil.isBlank(file)) return null;
 		if (!file.contains("*")) return file;
-		
+
 		String dirPath = file.substring(0, file.lastIndexOf("/"));
 		String[] keys = file.substring(file.lastIndexOf("/") + 1).split("\\*");
 		String[] files = new File(dirPath).list(new FilenameFilter() {
@@ -156,7 +156,7 @@ public class UploadPgyer {
 		});
 		return files == null || files.length == 0 ? null : files[0];
 	}
-	
+
 	/**
 	 * 下载文件
 	 *
@@ -169,20 +169,20 @@ public class UploadPgyer {
 			File sf = new File(savePath);// 输出的文件流
 			if (!sf.exists()) sf.mkdirs();
 			String filePath = savePath + File.separator + fileName;
-			
+
 			URL url = new URL(urlString);// 构造URL
 			URLConnection con = url.openConnection();// 打开连接
 			con.setConnectTimeout(60 * 1000);//设置请求超时为5s
 			InputStream is = con.getInputStream();// 输入流
-			
+
 			byte[] bs = new byte[1024 * 8];// 8K的数据缓冲
 			int len;// 读取到的数据长度
-			
+
 			OutputStream os = new FileOutputStream(filePath);
 			while ((len = is.read(bs)) != -1) {// 开始读取
 				os.write(bs, 0, len);
 			}
-			
+
 			// 完毕，关闭所有链接
 			os.close();
 			is.close();
@@ -193,7 +193,7 @@ public class UploadPgyer {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * 写文件
 	 *
@@ -215,7 +215,7 @@ public class UploadPgyer {
 			System.err.println("文件写入失败");
 		}
 	}
-	
+
 	/**
 	 * 输入帮助信息
 	 */
@@ -229,7 +229,7 @@ public class UploadPgyer {
 		System.out.println("     installType：  (选填) 应用安装方式，值为(1,2,3)。1：公开，2：密码安装，3：邀请安装。默认为1公开");
 		System.out.println("     password：     (选填) 设置App安装密码，如果不想设置密码，请传空字符串，或不传\n");
 	}
-	
+
 	/**
 	 * Header
 	 */
@@ -241,7 +241,7 @@ public class UploadPgyer {
 		System.out.println("****************************************************************");
 		System.out.println("****************************************************************");
 	}
-	
+
 	/**
 	 * @param upload
 	 */
