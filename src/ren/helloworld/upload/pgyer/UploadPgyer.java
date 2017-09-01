@@ -18,6 +18,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Arrays;
 
 /**
  * Created by dafan on 2017/5/4 0004.
@@ -27,6 +28,7 @@ public class UploadPgyer {
 
 	public static void main(String[] args) {
 		printHeaderInfo();
+		System.out.println(Arrays.toString(args));
 
 		// 用户帮助说明
 		if (args != null && args.length == 1 && args[0].equals("help")) {
