@@ -125,7 +125,7 @@ public class UploadPgyer {
 			System.out.println("正在将图片链接写入到文件中");
 			String qrtxt = new File(qrcodeDirPath, qrcodeFileName.replace(".png", ".txt")).getAbsolutePath();
 			System.out.println("文件路径：" + qrtxt);
-			write(qrtxt, "appQRCodeURL=" + upload.getData().getAppQRCodeURL(), "utf-8");
+			write(qrtxt, getUploadInfo(upload), "utf-8");
 
 			printResultInfo(upload);
 
@@ -267,5 +267,31 @@ public class UploadPgyer {
 		System.out.println("应用上传时间：" + data.getAppCreated());
 		System.out.println("应用更新时间：" + data.getAppUpdated());
 		System.out.println();
+	}
+
+	/**
+	 * @param upload
+	 * @return
+	 */
+	private static String getUploadInfo(Upload upload) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("appType").append("=").append(upload.getData().getAppType()).append("\n");
+		sb.append("appIsLastest").append("=").append(upload.getData().getAppIsLastest()).append("\n");
+		sb.append("appFileSize").append("=").append(upload.getData().getAppFileSize()).append("\n");
+		sb.append("appName").append("=").append(upload.getData().getAppName()).append("\n");
+		sb.append("appVersion").append("=").append(upload.getData().getAppVersion()).append("\n");
+		sb.append("appVersionNo").append("=").append(upload.getData().getAppVersionNo()).append("\n");
+		sb.append("appBuildVersion").append("=").append(upload.getData().getAppBuildVersion()).append("\n");
+		sb.append("appIdentifier").append("=").append(upload.getData().getAppIdentifier()).append("\n");
+		sb.append("appIcon").append("=").append(upload.getData().getAppIcon()).append("\n");
+		sb.append("appDescription").append("=").append(upload.getData().getAppDescription()).append("\n");
+		sb.append("appUpdateDescription").append("=").append(upload.getData().getAppUpdateDescription()).append("\n");
+		sb.append("appScreenshots").append("=").append(upload.getData().getAppScreenshots()).append("\n");
+		sb.append("appShortcutUrl").append("=").append(upload.getData().getAppShortcutUrl()).append("\n");
+		sb.append("appCreated").append("=").append(upload.getData().getAppCreated()).append("\n");
+		sb.append("appUpdated").append("=").append(upload.getData().getAppUpdated()).append("\n");
+		sb.append("appQRCodeURL").append("=").append(upload.getData().getAppQRCodeURL()).append("\n");
+		sb.append("appPgyerURL").append("=").append("https://www.pgyer.com/" + upload.getData().getAppShortcutUrl()).append("\n");
+		return sb.toString();
 	}
 }
